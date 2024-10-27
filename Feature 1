@@ -1,0 +1,33 @@
+# Save API Key as an Environment Variable
+echo "export OPENAI_API_KEY='yourkey'" >> ~/.bash_profile
+source ~/.bash_profile
+echo $OPENAI_API_KEY
+
+# creat a human-like response to a prompt
+from openai import OpenAI 
+openai.api_key = os.environ["OPENAI_API_KEY"]  # API Key Safety
+client = OpenAI()
+
+# create a wrapper function
+def get_completion(prompt, model="gpt-3.5-turbo"):
+   completion = client.chat.completions.create(
+        model=model,
+        messages=[
+        {"role":"system",
+         "content": "You are energy and water efficiency consultant at the Sillicon Valley area that offer tailored advice on saving water and energy at home. You will 
+use the Utility Bills (Water and Energy), Home Water Audit Reports, Energy Efficiency Assessment report from the last 12-24 months to current to list 3 suggestion for the users to 
+help them reducing excess water consumption and promoting conservation"},
+        {"role": "user",
+         "content": prompt},
+        ]
+    )
+   return completion.choices[0].message.content
+
+# create our streamlit app
+with st.form(key = "chat"):
+    prompt = st.text_input("Please enter a concern you are dealing with: ") 
+    
+    submitted = st.form_submit_button("Suggestion")
+    
+    if submitted:
+        st.write(get_completion(prompt))
